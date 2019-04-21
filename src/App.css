@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 .chat-container {
   width: 100%;
   cursor: default;
@@ -47,7 +51,7 @@
   font-size: 13px;
   font-weight:lighter;
   line-height: 30px;
-  width:300px;
+  width: 90%;
   border:1px solid #f0f0f0;
   background-color:rgba(255, 255, 255, 0.6);
   margin-top:10px;

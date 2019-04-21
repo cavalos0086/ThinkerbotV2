@@ -4,7 +4,11 @@ export class Chat extends Component {
 
   constructor(props) {
    super(props);
-   this.state = {msg: ''};
+   this.myRef=React.createRef(); // to help with scrolling
+   this.state = {
+     msg: '',
+     conversations: [],
+   };
    this.handleChange = this.handleChange.bind(this);
    this.handleSend = this.handleSend.bind(this);
   }
@@ -18,26 +22,48 @@ export class Chat extends Component {
               <div className="area">
                 <div className="L">
                   <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrEyVlaWx0_FK_sz86j-CnUC_pfEqw_Xq_xZUm5CMIyEI_-X2hRUpx1BHL"
-                    alt="man avatar"
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD4-UpD-3UAUatWEG1oglZo5MwHysjRQY_aBbtnf6gVtBUEV42"
+                    alt="bot avatar"
                   />
                 </div>
-                <div className="text R textR">Hello There</div>
+                <div className="text R textR">Hello There, I am Tinkerbot</div>
+                <div className="text R textR">How can I help?</div>
               </div>
 
-              <div className="area">
-                <div className="R">
-                  <img
-                    src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSxU35znsBhAWQd5BouLIVtH1P4WNa0JZ_XXpyViHOIARbM2igbNgC6_kp5"
-                    alt="woman avatar"
-                  />
-                </div>
-                <div className="text L textL">Hi, I am fine</div>
+              <div>
+                {
+                  this.state.conversations.map((val, index) => {
+                    return (
+                      <div key={index}>
+                        <div className="area">
+                          <div className="R">
+                            <img
+                              src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSxU35znsBhAWQd5BouLIVtH1P4WNa0JZ_XXpyViHOIARbM2igbNgC6_kp5"
+                              alt="woman avatar"
+                            />
+                          </div>
+
+                          <div className="text L textL">{val.me}</div>
+                        </div>
+
+                        <div className="area">
+                          <div className="L">
+                            <img
+                              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD4-UpD-3UAUatWEG1oglZo5MwHysjRQY_aBbtnf6gVtBUEV42"
+                              alt="man avatar"
+                            />
+                          </div>
+                          <div className="text R textR">{val.bot}</div>
+                        </div>
+                      </div>
+                    )
+                  })
+                }
               </div>
             </div>
           </div>
         </div>
-
+        <div id="end" ref={this.myRef}></div>
         <div className="row justify-content-center mt-4">
           <div className="col-8">
             <div className="area form-group form-check">
@@ -54,13 +80,22 @@ export class Chat extends Component {
   }
 
   handleChange(event) {
-    this.setState({msg: event.target.value});
+    this.setState({
+      msg: event.target.value
+    });
+  }
+
+  scrollToMyRef() {
+    console.log('scrolling', '***');
+    window.scrollTo(0, this.myRef.current.offsetTop)
   }
 
   handleSend(event) {
     event.preventDefault();
+    event.persist(); // why: https://reactjs.org/docs/events.html#event-pooling
+
     const data = {
-      message: this.state.msg
+      message: this.state.msg,
     };
 
     const requestOpt = {
@@ -74,7 +109,19 @@ export class Chat extends Component {
     fetch(`/api/sendMessage`, requestOpt)
       .then(res => res.text())
       .then((response => {
-        console.log(response, 'in UI***');
+        const newConv = {
+          me: this.state.msg,
+          bot: response,
+        };
+        this.scrollToMyRef();
+        this.setState(state => {
+          return {
+            msg: state.msg,
+            conversations: state.conversations.concat([newConv])
+          };
+        });
+
+
       }))
       .catch((err) => {
         console.log(err, '***errr');
