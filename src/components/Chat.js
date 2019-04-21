@@ -1,6 +1,14 @@
 import React,  { Component } from 'react';
 
 export class Chat extends Component {
+
+  constructor(props) {
+   super(props);
+   this.state = {msg: ''};
+   this.handleChange = this.handleChange.bind(this);
+   this.handleSend = this.handleSend.bind(this);
+  }
+
   render() {
     return (
       <div className="container">
@@ -32,16 +40,44 @@ export class Chat extends Component {
 
         <div className="row justify-content-center mt-4">
           <div className="col-8">
-            <div className="area">
-              <div className="input-group">
-                <textarea className="form-control" aria-label="With textarea"></textarea>
-              </div>
-              <button className="btn btn-secondary mt-4">Send</button>
+            <div className="area form-group form-check">
+              <form onSubmit={this.handleSend}>
+                <label>Enter message: (quit to end chat)</label>
+                <input className="form-control" type="text" value={this.state.msg} onChange={this.handleChange}/>
+              </form>
             </div>
           </div>
         </div>
       </div>
 
     );
+  }
+
+  handleChange(event) {
+    this.setState({msg: event.target.value});
+  }
+
+  handleSend(event) {
+    event.preventDefault();
+    const data = {
+      message: this.state.msg
+    };
+
+    const requestOpt = {
+      method: 'POST', // or 'PUT'
+      body: JSON.stringify(data), // data can be `string` or {object}!
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    };
+
+    fetch(`/api/sendMessage`, requestOpt)
+      .then(res => res.text())
+      .then((response => {
+        console.log(response, 'in UI***');
+      }))
+      .catch((err) => {
+        console.log(err, '***errr');
+      });
   }
 }
